@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keystroke</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --desk: #2b2621;
+    --paper: #f1ead9;
+    --rule: #d8cdb2;
+    --ink: #2a241f;
+    --ink-faint: #8c8170;
+    --ribbon: #a6332b;
+    --ribbon-dark: #7c241d;
+    --correct-ink: #33475b;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+  }
+  body {
+    background: var(--desk);
+    background-image:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.04), transparent 60%);
+    color: var(--ink);
+    font-family: 'Courier Prime', monospace;
+    display: flex;
+    justify-content: center;
+    padding: 56px 20px 80px;
+  }
+
+  .sheet {
+    width: 100%;
+    max-width: 680px;
+    background: var(--paper);
+    padding: 40px 44px 36px;
+    box-shadow: 0 22px 40px rgba(0,0,0,0.45), 0 2px 0 rgba(0,0,0,0.2);
+    position: relative;
+  }
+  /* torn perforated top edge */
+  .sheet::before {
+    content: "";
+    position: absolute;
+    top: -9px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-image: radial-gradient(circle at 8px 0, var(--desk) 5px, transparent 5.5px);
+    background-size: 16px 10px;
+    background-repeat: repeat-x;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-family: 'Special Elite', cursive;
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+  .byline {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 4px 0 0;
+  }
+  .tagline {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0;
+    text-align: right;
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
+  .counters {
+    display: flex;
+    border: 1px solid var(--ink);
+    margin-bottom: 26px;
+  }
+  .counter {
+    flex: 1;
+    text-align: center;
+    padding: 10px 6px 12px;
+    border-right: 1px solid var(--ink);
+  }
+  .counter:last-child { border-right: none; }
+  .counter .figure {
+    font-size: 30px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+  .counter .caption {
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+    letter-spacing: 0.4px;
+  }
+
+  .passage {
+    background: repeating-linear-gradient(
+      var(--paper),
+      var(--paper) 27px,
+      var(--rule) 28px
+    );
+    padding: 8px 4px 16px;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: justify;
+    text-align-last: left;
+    letter-spacing: 0.2px;
+    user-select: none;
+    margin-bottom: 6px;
+    width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+  .word { display: inline-block; }
+  .char {
+    color: var(--ink-faint);
+  }
+  .char.correct { color: var(--correct-ink); }
+  .char.incorrect {
+    color: var(--ribbon);
+    text-decoration: line-through;
+    text-decoration-color: var(--ribbon);
+  }
+  .char.current {
+    background: var(--ink);
+    color: var(--paper);
+    animation: strike 1s step-end infinite;
+  }
+  @keyframes strike {
+    0%, 100% { background: var(--ink); }
+    50% { background: var(--ribbon); }
+  }
+
+  .type-line {
+    margin-top: 18px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--ink);
+    color: var(--ink);
+    font-family: 'Courier Prime', monospace;
+    font-size: 17px;
+    padding: 6px 2px;
+    resize: none;
+    min-height: 30px;
+  }
+  textarea:focus { outline: none; border-bottom-color: var(--ribbon); }
+  textarea:disabled { color: var(--ink-faint); }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 28px;
+    gap: 20px;
+  }
+
+  .dial label {
+    display: block;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  select {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    padding: 7px 10px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 13px;
+  }
+
+  .restart-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  button {
+    background: var(--ribbon);
+    color: var(--paper);
+    border: none;
+    border-radius: 0;
+    padding: 10px 20px;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--ribbon-dark);
+  }
+  button:active {
+    box-shadow: 0 1px 0 var(--ribbon-dark);
+    transform: translateY(2px);
+  }
+  .shortcut-hint {
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  kbd {
+    background: var(--paper);
+    border: 1px solid var(--ink-faint);
+    border-radius: 2px;
+    padding: 0px 5px;
+    font-family: inherit;
+    font-size: 11px;
+  }
+
+  .result {
+    display: none;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--ink-faint);
+    font-size: 14px;
+  }
+  .result.show { display: block; }
+  .result .stamp {
+    font-family: 'Special Elite', cursive;
+    color: var(--ribbon);
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <div>
+      <h1>Keystroke</h1>
+      <p class="byline">by Githian</p>
+    </div>
+    <p class="tagline">Roll a sheet, start typing. The clock starts on your first key.</p>
+  </header>
+
+  <div class="counters">
+    <div class="counter">
+      <div class="figure" id="wpmLive">0</div>
+      <div class="caption">words / min</div>
+    </div>
+    <div class="counter">
+      <div class="figure" id="accLive">100%</div>
+      <div class="caption">accuracy</div>
+    </div>
+    <div class="counter">
+      <div class="figure" id="timeLive">0s</div>
+      <div class="caption">elapsed</div>
+    </div>
+  </div>
+
+  <div class="passage" id="textBox"></div>
+
+  <div class="type-line">
+    <label class="field-label" for="input">type here</label>
+    <textarea id="input" rows="2"></textarea>
+  </div>
+
+  <div class="row">
+    <div class="dial">
+      <label for="lengthSelect">sheet length</label>
+      <select id="lengthSelect">
+        <option value="short">Short</option>
+        <option value="medium" selected>Medium</option>
+        <option value="long">Long</option>
+      </select>
+    </div>
+    <div class="restart-wrap">
+      <button id="resetBtn">Restart</button>
+      <span class="shortcut-hint">Press <kbd>Esc</kbd> to restart</span>
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <span class="stamp">RESULT —</span> <span id="resultText"></span>
+  </div>
+</div>
+
+<script>
+const WORD_BANK = [
+  "time","year","people","way","day","man","thing","woman","life","child","world","school","state","family","student",
+  "group","country","problem","hand","part","place","case","week","company","system","program","question","work","government","number",
+  "night","point","home","water","room","mother","area","money","story","fact","month","lot","right","study","book",
+  "eye","job","word","business","issue","side","kind","head","house","service","friend","father","power","hour","game",
+  "line","end","member","law","car","city","community","name","president","team","minute","idea","body","information","back",
+  "parent","face","others","level","office","door","health","person","art","war","history","party","result","change","morning",
+  "reason","research","girl","guy","moment","air","teacher","force","education","light","fast","slow","quick","brown","fox",
+  "jump","over","lazy","dog","run","walk","talk","write","read","type","speed","practice","focus","skill","build",
+  "learn","grow","flow","start","finish","begin","open","close","large","small","great","good","bad","new","old",
+  "high","low","long","short","free","true","false","full","empty","early","late","hard","soft","simple","clear",
+  "strong","weak","bright","dark","calm","brave","fair","sharp","smooth","rough","clean","fresh","apple","orange","banana",
+  "grape","lemon","peach","cherry","melon","mango","plum","berry","olive","fig","date","river","ocean","mountain","valley",
+  "forest","desert","island","beach","coast","cliff","cave","canyon","plain","meadow","cloud","storm","rain","snow","wind",
+  "thunder","lightning","fog","mist","frost","dew","ice","hail","breeze","bird","eagle","hawk","owl","sparrow","robin",
+  "crow","swan","duck","goose","falcon","dove","finch","heron","lion","tiger","bear","wolf","deer","rabbit","horse",
+  "cow","sheep","goat","pig","mouse","squirrel","otter","beaver","fish","shark","whale","dolphin","seal","turtle","crab",
+  "shrimp","lobster","oyster","coral","kelp","reef","tree","oak","pine","maple","birch","willow","cedar","elm","palm",
+  "bamboo","root","branch","leaf","trunk","seed","flower","rose","tulip","daisy","lily","orchid","violet","lotus","sunflower",
+  "petal","bloom","stem","garden","color","red","blue","green","yellow","purple","pink","black","white","gray","silver",
+  "gold","metal","iron","steel","copper","bronze","tin","lead","zinc","brass","nickel","platinum","aluminum","stone","rock",
+  "sand","gravel","clay","mud","dirt","soil","dust","ash","coal","gem","crystal","pearl","diamond","music","song",
+  "sound","note","rhythm","melody","tune","beat","drum","guitar","piano","violin","flute","trumpet","paint","canvas","brush",
+  "sketch","draw","shade","design","pattern","frame","gallery","sculpture","mural","dance","step","move","glide","spin","twirl",
+  "leap","bounce","sway","stretch","pose","balance","grace","sport","ball","goal","score","match","coach","player","field",
+  "court","track","race","win","lose","jog","sprint","hike","climb","swim","dive","row","paddle","ride","pedal",
+  "skate","ski","surf","sail","kitchen","table","chair","sofa","lamp","shelf","drawer","closet","mirror","window","curtain",
+  "carpet","rug","plate","cup","bowl","fork","spoon","knife","pot","pan","oven","stove","sink","fridge","counter",
+  "cabinet","bread","rice","pasta","soup","salad","meat","cheese","egg","milk","butter","sugar","salt","pepper","spice",
+  "coffee","tea","juice","soda","wine","beer","honey","syrup","cream","sauce","oil","vinegar","herb","phone","screen",
+  "laptop","tablet","cable","wire","signal","battery","charger","camera","speaker","computer","code","data","file","folder","network",
+  "server","software","update","password","login","letter","paper","pen","pencil","ink","stamp","envelope","postcard","journal","diary",
+  "notebook","page","map","path","road","street","bridge","tunnel","highway","lane","alley","corner","block","avenue","plaza",
+  "train","plane","boat","ship","truck","bus","taxi","bike","scooter","wagon","sled","cart","engine","wheel","ticket",
+  "luggage","passport","visa","journey","trip","voyage","tour","guide","compass","anchor","doctor","nurse","patient","clinic","hospital",
+  "medicine","pill","vaccine","surgery","therapy","checkup","class","lesson","lecture","exam","grade","degree","diploma","university","college",
+  "farmer","crop","harvest","plow","barn","tractor","orchard","vineyard","pasture","baker","dough","flour","yeast","crust","loaf",
+  "pastry","cake","pie","cookie","muffin","builder","brick","wall","roof","floor","ceiling","beam","nail","hammer","saw",
+  "drill","ladder","scaffold","artist","palette","studio","exhibit","museum","pottery","craft","writer","novel","poem","essay","chapter",
+  "plot","character","theme","twist","author","singer","voice","choir","band","concert","stage","microphone","audience","lyric","chorus",
+  "verse","actor","movie","film","script","scene","costume","rehearsal","director","audition","chef","recipe","ingredient","dish","flavor",
+  "grill","bake","roast","king","queen","prince","princess","castle","throne","crown","kingdom","knight","sword","shield","pirate",
+  "treasure","flag","crew","captain","cove","robot","machine","gear","circuit","sensor","motor","switch","button","planet","star",
+  "galaxy","comet","orbit","moon","sun","eclipse","telescope","rocket","satellite","wave","tide","current","shore","net","dock",
+  "harbor","lighthouse","buoy","dune","oasis","camel","cactus","heat","mirage","caravan","tent","nomad","well","jungle","vine",
+  "canopy","monkey"
+];
+
+function generatePassage(count) {
+  const words = [];
+  for (let i = 0; i < count; i++) {
+    words.push(WORD_BANK[Math.floor(Math.random() * WORD_BANK.length)]);
+  }
+  let text = words.join(' ');
+  text = text.charAt(0).toUpperCase() + text.slice(1) + '.';
+  return text;
+}
+
+const WORD_COUNTS = { short: 12, medium: 40, long: 80 };
+
+const textBox = document.getElementById('textBox');
+const input = document.getElementById('input');
+const wpmLive = document.getElementById('wpmLive');
+const accLive = document.getElementById('accLive');
+const timeLive = document.getElementById('timeLive');
+const resetBtn = document.getElementById('resetBtn');
+const lengthSelect = document.getElementById('lengthSelect');
+const resultBox = document.getElementById('result');
+const resultText = document.getElementById('resultText');
+
+let passage = '';
+let startTime = null;
+let timerInterval = null;
+let finished = false;
+
+function loadPassage() {
+  passage = generatePassage(WORD_COUNTS[lengthSelect.value]);
+  renderPassage();
+}
+
+function renderPassage(typed = '') {
+  let i = 0;
+  const tokens = passage.match(/\S+|\s+/g) || [];
+  const html = tokens.map(token => {
+    const isSpace = /^\s+$/.test(token);
+    const chars = token.split('').map(ch => {
+      const idx = i++;
+      let cls = 'char';
+      if (idx < typed.length) {
+        cls += typed[idx] === ch ? ' correct' : ' incorrect';
+      } else if (idx === typed.length) {
+        cls += ' current';
+      }
+      return `<span class="${cls}">${escapeHtml(ch)}</span>`;
+    }).join('');
+    return isSpace ? chars : `<span class="word">${chars}</span>`;
+  }).join('');
+  textBox.innerHTML = html;
+}
+
+function escapeHtml(ch) {
+  if (ch === ' ') return ' ';
+  if (ch === '<') return '&lt;';
+  if (ch === '>') return '&gt;';
+  return ch;
+}
+
+function startTimer() {
+  startTime = Date.now();
+  timerInterval = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    timeLive.textContent = elapsed.toFixed(0) + 's';
+    updateLiveWpm(elapsed);
+  }, 200);
+}
+
+function updateLiveWpm(elapsedSeconds) {
+  const typed = input.value;
+  const words = typed.length / 5;
+  const minutes = elapsedSeconds / 60;
+  const wpm = minutes > 0 ? Math.round(words / minutes) : 0;
+  wpmLive.textContent = wpm;
+}
+
+function calcAccuracy(typed) {
+  let correct = 0;
+  for (let i = 0; i < typed.length; i++) {
+    if (typed[i] === passage[i]) correct++;
+  }
+  return typed.length === 0 ? 100 : Math.round((correct / typed.length) * 100);
+}
+
+function finish() {
+  finished = true;
+  clearInterval(timerInterval);
+  const elapsed = Math.max((Date.now() - startTime) / 1000, 0.1);
+  const words = passage.length / 5;
+  const minutes = elapsed / 60;
+  const wpm = Math.round(words / minutes);
+  const acc = calcAccuracy(input.value);
+  resultBox.classList.add('show');
+  resultText.textContent = `${wpm} words per minute, ${acc}% accuracy, ${elapsed.toFixed(1)}s.`;
+  input.disabled = true;
+}
+
+input.addEventListener('input', () => {
+  if (finished) return;
+  const typed = input.value;
+
+  if (!startTime && typed.length > 0) {
+    startTimer();
+  }
+
+  renderPassage(typed);
+  accLive.textContent = calcAccuracy(typed) + '%';
+
+  if (typed.length >= passage.length) {
+    finish();
+  }
+});
+
+resetBtn.addEventListener('click', reset);
+lengthSelect.addEventListener('change', reset);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    reset();
+  }
+});
+
+function reset() {
+  clearInterval(timerInterval);
+  startTime = null;
+  finished = false;
+  input.value = '';
+  input.disabled = false;
+  wpmLive.textContent = '0';
+  accLive.textContent = '100%';
+  timeLive.textContent = '0s';
+  resultBox.classList.remove('show');
+  loadPassage();
+  input.focus();
+}
+
+loadPassage();
+input.focus();
+</script>
+</body>
+</html>
